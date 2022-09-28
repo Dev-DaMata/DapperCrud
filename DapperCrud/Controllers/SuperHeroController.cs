@@ -29,12 +29,12 @@ namespace DapperCrud.Controllers
         {
             using var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
             var hero = await connection.QueryFirstAsync<SuperHero>("SELECT * FROM [Super-Heroes] where id = @Id",
-                new { Id = heroId});
+                new { Id = heroId });
             return Ok(hero);
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<SuperHero>>> CreateHero(SuperHero  hero)
+        public async Task<ActionResult<List<SuperHero>>> CreateHero(SuperHero hero)
         {
             using var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
             await connection.ExecuteAsync("insert into [Super-Heroes] (NameHero, FirstName, LastName, Place) values (@NameHero, @FirstName, @LastName, @Place)", hero);
@@ -46,6 +46,14 @@ namespace DapperCrud.Controllers
         {
             using var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
             await connection.ExecuteAsync("update [Super-Heroes] set NameHero = @NameHero, FirstName = @FirstName, LastName = @LastName, Place = @Place where id = @Id ", hero);
+            return Ok(await SelectAllHeroes(connection));
+        }
+
+        [HttpDelete("{heroId}")]
+        public async Task<ActionResult<List<SuperHero>>> DeleteHero(int heroId)
+        {
+            using var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+            await connection.ExecuteAsync("delete from [Super-Heroes] where id = @Id ",new { Id = heroId});
             return Ok(await SelectAllHeroes(connection));
         }
 
